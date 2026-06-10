@@ -14,22 +14,28 @@ export default function Login({ navigation }) {
   const [senha, setSenha] = useState("");
 
   async function entrar() {
-  const { data, error } =
-    await supabase.auth.signInWithPassword({
-      email: email,
-      password: senha,
-    });
+    const { data, error } =
+  await supabase.auth.signInWithPassword({
+    email,
+    password: senha,
+  });
 
-  console.log("DATA:", data);
-  console.log("ERROR:", error);
+if (error) {
+  Alert.alert("Erro", error.message);
+  return;
+}
 
-  if (error) {
-    alert(error.message);
-    return;
-  }
+const { data: perfil } = await supabase
+  .from("profiles")
+  .select("*")
+  .eq("id", data.user.id)
+  .single();
 
-  alert("Login realizado!");
-    console.log(data.user);
+if (perfil.role === "professor") {
+  navigation.replace("Professor");
+} else {
+  navigation.replace("Aluno");
+}
   }
 
   return (
